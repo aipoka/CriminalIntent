@@ -11,17 +11,19 @@ import com.dystudio.criminalintent.database.CrimeBaseHelper;
 import com.dystudio.criminalintent.database.CrimeCursorWrapper;
 import com.dystudio.criminalintent.database.CrimeDbSchema.CrimeTable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class CrimeLab {
     private static CrimeLab sCrimeLab;
+    private Context mContext;
     private final SQLiteDatabase mDatabase;
 
     private CrimeLab(Context context) {
-        Context context1 = context.getApplicationContext();
-        mDatabase = new CrimeBaseHelper(context1).getWritableDatabase();
+        mContext = context.getApplicationContext();
+        mDatabase = new CrimeBaseHelper(mContext).getWritableDatabase();
         //       mCrimes = new ArrayList<>();
 //        mCrimeLookupTable = new HashMap<>();
 //        for (int i = 0; i < 100; i++) {
@@ -46,6 +48,7 @@ public class CrimeLab {
         values.put(CrimeTable.Cols.TITLE, crime.getTitle());
         values.put(CrimeTable.Cols.DATE, crime.getDate().getTime());
         values.put(CrimeTable.Cols.SOLVED, crime.isSolved() ? 1 : 0);
+        values.put(CrimeTable.Cols.SUSPECT, crime.getSuspect());
         return values;
     }
 
@@ -118,6 +121,11 @@ public class CrimeLab {
         //mCrimes.remove(c);
         String uuidString = crime.getId().toString();
         mDatabase.delete(CrimeTable.NAME, CrimeTable.Cols.UUID + " = ?", new String[]{uuidString});
+    }
+
+    public File getPhotoFile(Crime crime) {
+        File filesDir = mContext.getFilesDir();
+        return new File(filesDir, crime.getPhotoFilename());
     }
 
 }

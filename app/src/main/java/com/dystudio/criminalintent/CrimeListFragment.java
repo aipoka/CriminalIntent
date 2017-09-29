@@ -184,6 +184,8 @@ public class CrimeListFragment extends Fragment {
         activity.getSupportActionBar().setSubtitle(subtitle);
     }
 
+
+
     private void log(String msg) {
         Log.d(TAG, msg);
     }

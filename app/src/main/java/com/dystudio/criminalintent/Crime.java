@@ -9,6 +9,7 @@ public class Crime {
     private Date mDate;
     private boolean mSolved;
     private final boolean mRequirePolice;
+    private String mSuspect;
 
     public Crime(UUID id) {
         mId = id;
@@ -52,4 +53,15 @@ public class Crime {
         return mRequirePolice;
     }
 
+    public String getSuspect() {
+        return mSuspect;
+    }
+
+    public void setSuspect(String suspect) {
+        mSuspect = suspect;
+    }
+
+    public String getPhotoFilename() {
+        return "IMG_" + getId().toString() + ".jpg";
+    }
 }
