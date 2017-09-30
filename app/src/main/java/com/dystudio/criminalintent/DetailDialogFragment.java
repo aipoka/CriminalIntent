@@ -4,6 +4,7 @@ package com.dystudio.criminalintent;
 import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -34,14 +35,15 @@ public class DetailDialogFragment extends DialogFragment {
     }
 
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         File photoFile = (File) getArguments().getSerializable(ARG_FILE);
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_detail_dialog, null);
 
-        int width = (int) (getResources().getDisplayMetrics().widthPixels );
-        int height = (int) (getResources().getDisplayMetrics().heightPixels );
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
         Log.d("abc","w:H"+width+":"+height);
 
         mImageView = view.findViewById(R.id.dialog_image_detail);

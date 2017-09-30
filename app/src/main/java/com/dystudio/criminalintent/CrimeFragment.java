@@ -49,7 +49,6 @@ public class CrimeFragment extends Fragment {
     private Button mTimeButton;
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
-    private Button mReportButton;
     private Button mSuspectButton;
     private static final int REQUEST_CONTACT = 2;
     private Button mDialButton;
@@ -58,7 +57,6 @@ public class CrimeFragment extends Fragment {
 
     private File mPhotoFile;
 
-    private ImageButton mPhotoButton;
     private ImageView mPhotoView;
     private int mPhotoView_width;
     private int mPhotoView_height;
@@ -147,9 +145,8 @@ public class CrimeFragment extends Fragment {
 
         });
 
-        mReportButton = (Button)
-                v.findViewById(R.id.crime_report);
-        mReportButton.setOnClickListener((View view) -> {
+        Button reportButton = v.findViewById(R.id.crime_report);
+        reportButton.setOnClickListener((View view) -> {
 
 //            Intent i = new Intent(Intent.ACTION_SEND);
 //            i.setType("text/plain");
@@ -166,11 +163,8 @@ public class CrimeFragment extends Fragment {
 
         final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         //pickContact.addCategory(Intent.CATEGORY_HOME);
-        mSuspectButton = (Button)
-                v.findViewById(R.id.crime_suspect);
-        mSuspectButton.setOnClickListener((View view) -> {
-            startActivityForResult(pickContact, REQUEST_CONTACT);
-        });
+        mSuspectButton = v.findViewById(R.id.crime_suspect);
+        mSuspectButton.setOnClickListener((View view) -> startActivityForResult(pickContact, REQUEST_CONTACT));
         if (mCrime.getSuspect() != null) {
             mSuspectButton.setText(mCrime.getSuspect());
         }
@@ -192,11 +186,11 @@ public class CrimeFragment extends Fragment {
 
         });
 
-        mPhotoButton = v.findViewById(R.id.crime_camera);
+        ImageButton photoButton = v.findViewById(R.id.crime_camera);
         final Intent captureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         boolean canTakePhoto = mPhotoFile != null && captureImage.resolveActivity(packageManager) != null;
-        mPhotoButton.setEnabled(canTakePhoto);
-        mPhotoButton.setOnClickListener((View view) -> {
+        photoButton.setEnabled(canTakePhoto);
+        photoButton.setOnClickListener((View view) -> {
             Uri uri = FileProvider.getUriForFile(getActivity(), "com.dystudio.criminalintent.fileprovider", mPhotoFile);
             //  Log.d("abc", mPhotoFile.toString());
             captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
@@ -289,12 +283,12 @@ public class CrimeFragment extends Fragment {
             String[] queryFields = new String[]{
                     ContactsContract.Contacts.DISPLAY_NAME
             };
-            Cursor c = getActivity().getContentResolver()
+            assert contactUri != null;
+            try (Cursor c = getActivity().getContentResolver()
                     .query(contactUri, queryFields, null,
-                            null, null);
-            try {
+                            null, null)) {
 
-                if (c.getCount() == 0) {
+                if ((c != null ? c.getCount() : 0) == 0) {
                     return;
                 }
                 c.moveToFirst();
@@ -302,15 +296,13 @@ public class CrimeFragment extends Fragment {
                 mCrime.setSuspect(suspect);
                 updateCrime();
                 mSuspectButton.setText(suspect);
-            } finally {
-                c.close();
             }
         } else if (requestCode == REQUEST_DIAL && data != null) {
-            String phoneNo = null;
+            String phoneNo;
             String name = null;
             Uri uri = data.getData();
-            Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
-            if (cursor.moveToFirst()) {
+            Cursor cursor = getActivity().getContentResolver().query(uri != null ? uri : null, null, null, null, null);
+            if (cursor != null ? cursor.moveToFirst() : false) {
                 int phoneIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
                 phoneNo = cursor.getString(phoneIndex);
                 // cursor.getCount();
@@ -328,7 +320,8 @@ public class CrimeFragment extends Fragment {
                             124);
                     // Log.d("abc", "permission is not granted");
                 }
-            } else if (requestCode == REQUEST_PHOTO) {
+            } else //noinspection ConstantConditions
+                if (requestCode == REQUEST_PHOTO) {
                 Uri uri2 =
                         FileProvider.getUriForFile(getActivity(),
                                 "com.dystudio.criminalintent.fileprovider",
@@ -405,7 +398,7 @@ public class CrimeFragment extends Fragment {
     }
 
     private String getCrimeReport() {
-        String solvedString = null;
+        String solvedString;
         if (mCrime.isSolved()) {
             solvedString =
                     getString(R.string.crime_report_solved);

@@ -3,13 +3,20 @@
     <words>
       <w>createview</w>
       <w>criminalintent</w>
+      <w>fileprovider</w>
+      <w>getscaledbitmap</w>
+      <w>ipaulpro</w>
       <w>itemview</w>
+      <w>masterdetail</w>
       <w>needpolice</w>
       <w>noneedforpolice</w>
       <w>oncreate</w>
       <w>onsaveinstancestate</w>
       <w>quatity</w>
+      <w>recyclerview</w>
+      <w>resauto</w>
       <w>subtitleflag</w>
+      <w>twopane</w>
       <w>viewholder</w>
     </words>
   </dictionary>

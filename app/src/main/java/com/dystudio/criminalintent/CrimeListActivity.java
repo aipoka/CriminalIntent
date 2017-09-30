@@ -28,6 +28,8 @@ public class CrimeListActivity extends SingleFragmentActivity implements CrimeLi
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_fragment_container, newDetail).addToBackStack(null)
                     .commit();
+            onCrimeUpdated(crime); //added solely for update subtitle when adding a new crime in twopane scenario.
+
         }
     }
 
@@ -36,6 +38,7 @@ public class CrimeListActivity extends SingleFragmentActivity implements CrimeLi
         CrimeListFragment listFragment = (CrimeListFragment) getSupportFragmentManager()
                                 .findFragmentById(R.id.fragment_container);
         listFragment.updateUI();
+        listFragment.updateSubtitle();
     }
 
     @Override

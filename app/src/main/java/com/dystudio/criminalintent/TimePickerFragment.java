@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -43,15 +44,25 @@ public class TimePickerFragment extends DialogFragment {
 
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_time, null);
         mTimePicker = v.findViewById(R.id.dialog_time_picker);
-        mTimePicker.setHour(hour);
-        mTimePicker.setMinute(minute);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mTimePicker.setHour(hour);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mTimePicker.setMinute(minute);
+        }
 
         return new AlertDialog.Builder(getActivity())
                 .setView(v)
                 .setTitle(R.string.time_picker_title)
                 .setPositiveButton(android.R.string.ok, (DialogInterface di, int which) -> {
-                    int _hour = mTimePicker.getHour();
-                    int _minute = mTimePicker.getMinute();
+                    int _hour = 0;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        _hour = mTimePicker.getHour();
+                    }
+                    int _minute = 0;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        _minute = mTimePicker.getMinute();
+                    }
                     Date _date = new GregorianCalendar(2000, 1, 1, _hour, _minute).getTime();
                     sendResult(Activity.RESULT_OK, _date);
                 }).create();

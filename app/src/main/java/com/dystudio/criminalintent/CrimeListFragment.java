@@ -1,8 +1,6 @@
 package com.dystudio.criminalintent;
 
-import android.content.ComponentCallbacks;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -64,7 +62,7 @@ public class CrimeListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         log("on createview is called");
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
-        mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
+        mCrimeRecyclerView = view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         updateUI();
@@ -118,6 +116,7 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     public static void enableMenuIcon(Menu menu, boolean flag) {
         try {
             Class<?> clazz = Class.forName("android.support.v7.view.menu.MenuBuilder");
@@ -126,13 +125,7 @@ public class CrimeListFragment extends Fragment {
 
             //MenuBuilder实现Menu接口，创建菜单时，传进来的menu其实就是MenuBuilder对象(java的多态特征)
             m.invoke(menu, flag);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
+        } catch (ClassNotFoundException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
@@ -245,16 +238,17 @@ public class CrimeListFragment extends Fragment {
 //                startActivity(intent);
                 mCallbacks.onCrimeSelected(mCrime);
             });
-            mTitleTextView = (TextView) itemView.findViewById(R.id.crime_title);
-            mDateTextView = (TextView) itemView.findViewById(R.id.crime_date);
-            mSolvedImageView = (ImageView) itemView.findViewById(R.id.crime_solved);
+            mTitleTextView = itemView.findViewById(R.id.crime_title);
+            mDateTextView = itemView.findViewById(R.id.crime_date);
+            mSolvedImageView = itemView.findViewById(R.id.crime_solved);
         }
 
+        @SuppressWarnings("SameParameterValue")
         public CrimeHolder(LayoutInflater inflater, ViewGroup parent, boolean requirePolice) {
             super(inflater.inflate(R.layout.list_item_crime_with_police, parent, false));
             //itemView.setOnClickListener(this);
             wireUI();
-            mPoliceButton = (Button) itemView.findViewById(R.id.contact_police);
+            mPoliceButton = itemView.findViewById(R.id.contact_police);
         }
 
         public void bind(Crime crime) {
