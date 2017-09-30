@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity extends AppCompatActivity implements CrimeFragment.Callbacks{
     private List<Crime> mCrimes;
 //    private Button mJumpToFirstButton;
 //    private Button mJumpToLastButton;
@@ -62,5 +62,15 @@ public class CrimePagerActivity extends AppCompatActivity {
                 break;
             }
         }
+    }
+
+    @Override
+    public void onCrimeUpdated(Crime crime) {
+
+    }
+
+    @Override
+    public void onCrimeDeleted(Crime crime) {
+
     }
 }

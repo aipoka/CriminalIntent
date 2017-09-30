@@ -1,11 +1,14 @@
 package com.dystudio.criminalintent;
 
+import android.content.ComponentCallbacks;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +23,7 @@ import android.widget.Toast;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -33,6 +37,12 @@ public class CrimeListFragment extends Fragment {
     private static String SUBTITLEFLAG = "subtitle";
     private boolean mSubtitleVisible;
     private static String TAG = "CIF";
+
+    private Callbacks mCallbacks;
+
+    public interface Callbacks{
+        void onCrimeSelected(Crime crime);
+    }
 
 
     @Override
@@ -76,13 +86,17 @@ public class CrimeListFragment extends Fragment {
 
     }
 
-    private void updateUI() {
+    public void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
+            ItemTouchHelper.Callback callback =
+                    new SimpleItemTouchHelperCallback(mAdapter);
+            ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+            touchHelper.attachToRecyclerView(mCrimeRecyclerView);
         } else {
             mAdapter.setCrimes(crimes);
             mAdapter.notifyDataSetChanged();
@@ -131,10 +145,12 @@ public class CrimeListFragment extends Fragment {
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
                 //CrimeLab.get(getActivity()).getCrimeLookupTable().put(crime.getId(),crime);
-                Intent intent = CrimePagerActivity
-                        .newIntent(getActivity(),
-                                crime.getId());
-                startActivity(intent);
+//                Intent intent = CrimePagerActivity
+//                        .newIntent(getActivity(),
+//                                crime.getId());
+//                startActivity(intent);
+                updateUI();
+                mCallbacks.onCrimeSelected(crime);
                 return true;
             case R.id.show_subtitle:
 
@@ -168,7 +184,20 @@ public class CrimeListFragment extends Fragment {
         outState.putBoolean(SUBTITLEFLAG, mSubtitleVisible);
     }
 
-    private void updateSubtitle() {
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
+
+    public void updateSubtitle() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
         int quatity = 0;
@@ -210,10 +239,11 @@ public class CrimeListFragment extends Fragment {
                 //this v is actually the itemview for the viewholder
                 mAdapter.setPositionClicked((int) v.getTag());
 
-                Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
-
-                //Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
-                startActivity(intent);
+//                Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
+//
+//                //Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+//                startActivity(intent);
+                mCallbacks.onCrimeSelected(mCrime);
             });
             mTitleTextView = (TextView) itemView.findViewById(R.id.crime_title);
             mDateTextView = (TextView) itemView.findViewById(R.id.crime_date);
@@ -251,7 +281,7 @@ public class CrimeListFragment extends Fragment {
     }
 
 
-    private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
+    private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> implements ItemTouchHelperAdapter{
         private List<Crime> mCrimes;
         private int mPositionClicked;
 
@@ -296,6 +326,30 @@ public class CrimeListFragment extends Fragment {
 
         public void setCrimes(List<Crime> crimes) {
             mCrimes = crimes;
+        }
+
+        @Override
+        public void onItemMove(int fromPosition, int toPosition) {
+            if (fromPosition < toPosition) {
+                for (int i = fromPosition; i < toPosition; i++) {
+                    Collections.swap(mCrimes, i, i + 1);
+                }
+            } else {
+                for (int i = fromPosition; i > toPosition; i--) {
+                    Collections.swap(mCrimes, i, i - 1);
+                }
+            }
+            notifyItemMoved(fromPosition, toPosition);
+            // possibly also swap records in database if we want to preserve the position swap for next launch.
+        }
+
+        @Override
+        public void onItemDismiss(int position) {
+            Crime crime = mCrimes.get(position);
+            mCrimes.remove(position);
+            CrimeLab.get(getActivity()).removeCrime(crime);
+            notifyItemRemoved(position);
+            updateSubtitle();
         }
     }
 }
